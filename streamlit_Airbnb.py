@@ -307,17 +307,17 @@ elif current_tab == "📊 Exploratory Data Analysis":
     
     cleaned_df = clean_data(airbnb_df)    
     
-    st.write('First of all, knowing that the City of New York is compsoed by 5 major neighborhood groups, which are Brooklyn, Manhattan, Queens, Bronx and Staten Isalnd, it is appropriate to identify how the Airbnb located suq eul in the various neighborhood_groups are divided.')
+    st.write('First of all, knowing that  New York City is composed by five major neighborhood groups, which are Brooklyn, Manhattan, Queens, Bronx and Staten Isalnd, is appropriate to identify how the Airbnb located in the various neighborhood groups are divided.')
     neighbourhood_group_counts = cleaned_df['neighbourhood_group'].value_counts()
     explode = [0.01] * len(neighbourhood_group_counts)
     palette = ['powderblue', 'mediumpurple', 'lightcoral', 'mediumseagreen', 'sandybrown']
     plt.figure(figsize=(6,5)) 
-    plt.pie(neighbourhood_group_counts, explode = explode, labels=neighbourhood_group_counts.index ,  autopct='%1.1f%%', startangle=30, colors=palette, textprops={'fontsize': 7})
-    plt.title('Number of Airbnbs in each Neighbourhood Group', fontsize=9)
+    plt.pie(neighbourhood_group_counts, explode = explode, labels=neighbourhood_group_counts.index ,  autopct='%1.1f%%', startangle=30, colors=palette, textprops={'fontsize': 6})
+    plt.title('Number of Airbnbs in each Neighbourhood Group', fontsize=7)
     st.pyplot(plt.gcf())
 
     ####################################################################################################################################################
-    st.write(' The neighborhoods with the highest density of Airbnb are.:')
+    st.write(' The neighborhoods with the highest density of Airbnb are:')
     
     neighbourhood_by_most_Airbnbs = cleaned_df.neighbourhood.value_counts()
     top_10_neighbourhood = neighbourhood_by_most_Airbnbs.head(10)
@@ -375,6 +375,8 @@ elif current_tab == "📊 Exploratory Data Analysis":
         plt.tight_layout()
         st.pyplot(plt.gcf())
 
+        st.write('The most popular airbnb name in New York is **Home away from home**.')
+
     with tab2:
         st.write('The hosts who own the most Airbnbs in New York City are:')
 
@@ -394,8 +396,10 @@ elif current_tab == "📊 Exploratory Data Analysis":
         plt.tight_layout()
         st.pyplot(plt.gcf())
 
+        st.write('The name of the host with the most Airbnb in New York is **Michael**.')
+
     #############################################################################################################################################################
-    st.write('From the following graph you can see the trend of Airbnb construction from the year 2002 until 2022:')
+    st.write('The following plots were created showing the maximum and minimum daily price for each year of Airbnb construction from 2002 to 2022. This representation can be useful in assessing whether hosts of more recently built Airbnbs demand higher prices and deviate from the maximum price of older built apartments.')
 
     plt.figure(figsize=(10, 5))
     cleaned_df.groupby('construction_year')['id'].count().plot(kind='line')
@@ -405,6 +409,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
     plt.legend()
     plt.grid(True, axis = 'y')
     st.pyplot(plt.gcf())
+    st.write('The largest number of airbnbs were built in 2012.')
 
     #############################################################################################################################################################
     st.write('The minimum and maximum daily prices of Airbnb built from 2002 to 2022 were also investigated to check whether the higher price had a close relationship with the recent construction of the apartment')
@@ -442,6 +447,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
     plt.legend()
     
     st.pyplot(plt.gcf())
+    st.write('It is noted that the daily price is not strictly related to the year of construction; rather, for each year it goes back to an apartment with a minimum price of $50 and a maximum of $1199 or $1200.')
 
     #############################################################################################################################################################
     st.write('The map shows the most expensive Airbnbs, highlighted in red, and the least expensive, in green, in New York City. Each of these, when selected, indicates the neighborhood to which it belongs.')
@@ -507,6 +513,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
         plt.title('Proportion of apartment types in New York City.', fontsize=10)
         plt.legend()
         st.pyplot(plt.gcf())
+        st.write('From this pie chart it was possible to observe that the solutions for which most hosts opt are entire apartments or private rooms')
 
     with tab2:
         num_rows = 3
@@ -533,6 +540,9 @@ elif current_tab == "📊 Exploratory Data Analysis":
         axes[2, 1].axis('off')  
         plt.tight_layout()
         st.pyplot(plt.gcf())
+
+        st.write('From this sublpot with pie charts related to neighborhood groups, it can be seen that most hosts offer entire apartments or private rooms')
+
 
     #########################################################################################################################################################################################################################
     st.write('As just seen, hosts offer different room solutions to their customers and do the same with cancellation policies as well. With the following chart, the differences between Airbnb s number of different room types based on the cancellation policy offered are highlighted.')
@@ -565,10 +575,11 @@ elif current_tab == "📊 Exploratory Data Analysis":
         colors = ['darkseagreen','powderblue',  'pink']
 
         plt.figure(figsize=(4,4))
-        plt.pie(policies, labels=policies.index,colors=colors, explode = explode, autopct='%1.1f%%', startangle=40,  textprops={'fontsize': 8})
-        plt.title('Cancellation policy strictness by percentage', fontsize=8)
+        plt.pie(policies, labels=policies.index,colors=colors, explode = explode, autopct='%1.1f%%', startangle=40,  textprops={'fontsize': 7})
+        plt.title('Cancellation policy strictness by percentage', fontsize=7)
         #plt.legend()
         st.pyplot(plt.gcf())
+        st.write('There is a small difference between the cancellation policies guaranteed by hosts, the one most commonly used is the moderate one.')
     
     #############################################################################################################################################################
     st.write('Even if hosts do not confirm customers reservations, the guests can often proceed with the booking anyway. Instant bookable is not strictly tied to a room type  as can be seen from the following plot.')
@@ -583,9 +594,10 @@ elif current_tab == "📊 Exploratory Data Analysis":
     plt.xticks(rotation=0)
     plt.legend(title='Room Type')
     st.pyplot(plt.gcf())
+    st.write('the fact whether Airbnb is bookable instantly or later does not depend on the type of room because this graph  does not show a substantial difference.')
 
     ##################################################################################################################################################################################
-    st.write('The next boxplot analyzes the possible changes in daily Airbnb prices in New York City according to the type of room they refer to. It is observed that the median is similar for all solutions so the average prices are similar. Only for hotel room it is possible to observe that the prices are slightly higher.')   
+    st.write('The next boxplot analyzes the possible changes in daily Airbnb prices in New York City according to the type of room they refer to. ')   
     
     plt.figure(figsize=(10,8))
     sns.boxplot(x='room_type', y='price', data=cleaned_df)
@@ -593,7 +605,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
     plt.ylabel('Price')
     plt.title('Price distribution by Room Type')
     st.pyplot(plt.gcf())
-
+    st.write('It is observed that the median is similar for all solutions so the average prices are similar. Only for hotel room it is possible to observe that the prices are slightly higher.')
     ##############################################################################################################################################################################
     st.write('Regarding the rate obtained in the reviews:')
     
@@ -612,6 +624,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
         plt.axhline(y=best_neighbourhood, color='red', linestyle='--', linewidth=2, label='Best Neighbourhood')
         plt.legend()
         st.pyplot(plt.gcf())
+        st.write("The neighborhood with the best review rate on average is: **Glen Oaks**. \nIts average review rate is 4.5")
 
     with tab2:
         st.write('this plot analyzes whether host identity verification is important to guests and thus how it might affect the score left in reviews.')
@@ -623,12 +636,9 @@ elif current_tab == "📊 Exploratory Data Analysis":
         plt.legend(title='Reviews rate')
         plt.xticks(rotation=0)  
         st.pyplot(plt.gcf())
+        st.write('This stacked plot shows that the number of reviews with each score appears to be similar between verified and unverified hosts. This observation might suggest that the identity verification status is not a determining factor in guests overall evaluations. Other factors, such as cleanliness, comfort, location, and hospitality, may have a more significant influence on guest evaluations. Alternatively, it could indicate a lack of awareness among guests regarding the host s identity confirmation process.')
+       
 
-############
-#Modeling
-############
-elif current_tab == "🤖 Modeling with ML algorithms": 
-    st.title("Modeling with ML algorithms")
 
 
 
