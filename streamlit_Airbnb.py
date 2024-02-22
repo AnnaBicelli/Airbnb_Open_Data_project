@@ -1,5 +1,3 @@
-#per lanciarlo: python -m streamlit run .\streamlit_Airbnb.py
-
 # import librearies
 import streamlit as st
 import pandas as pd
@@ -365,7 +363,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
         y = top_20_names # Number of neighbourhoods
         plt.title('Top 20 names for Airbnbs')
         bars = plt.bar(x, y, color=plt.cm.magma(np.linspace(0, 1, len(x))))
-        plt.xticks(rotation=45, ha='right') #with 'right' I'm sure that the xticks are under the corresponding bar
+        plt.xticks(rotation=45, ha='right') 
         plt.ylabel('Number of Airbnbs with the name')
         plt.xlabel('Name of the Airbnbs')
         for bar, v in zip(bars, y):
@@ -383,10 +381,10 @@ elif current_tab == "📊 Exploratory Data Analysis":
 
         plt.figure(figsize=(10,8))
         x = top_20__host_names.index 
-        y = top_20__host_names # Number of neighbourhoods
+        y = top_20__host_names
         plt.title('Top 20 host names')
         bars = plt.bar(x, y, color=plt.cm.magma(np.linspace(0, 1, len(x)))) 
-        plt.xticks(rotation=45, ha='right') #with 'right' I'm sure that the xticks are under the corresponding bar
+        plt.xticks(rotation=45, ha='right') 
         plt.ylabel('Number of airbnbs of that host')
         plt.xlabel('Host names')
         for bar, v in zip(bars, y):
