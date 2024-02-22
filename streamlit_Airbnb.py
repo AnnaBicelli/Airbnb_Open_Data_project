@@ -7,12 +7,10 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-#import plotly.express as px NON PENSO SERVA
 import folium 
 import io
 from io import BytesIO
 from streamlit_folium import st_folium
-#from streamlit_folium import folium_static
 
 ##################
 #Importing Dataset
@@ -23,7 +21,7 @@ airbnb_df = pd.read_csv('Airbnb_Open_Data.csv')
 #Set tabs for the chapters
 ##########################
 
-tab_names = ["📄 Introduction", "🗑️ Cleaning", "🔗 Correlation", "📊 Exploratory Data Analysis", " 🤖 Modeling with ML algorithms"]
+tab_names = ["📄 Introduction", "🗑️ Cleaning", "🔗 Correlation", "📊 Exploratory Data Analysis", "🤖 Modeling with ML algorithms"]
 current_tab = st.sidebar.selectbox("Table of content", tab_names)
 st.sidebar.markdown(
     """
@@ -43,8 +41,8 @@ def clean_data(df):
     cleaned_df.columns = cleaned_df.columns.map(lambda x: x.lower().replace(' ', '_'))
     
     # remove '$' e ',' from 'price' e 'service_fee' and  convert in float
-    cleaned_df['price'] = cleaned_df['price'].replace({'\$': '', ',': ''}, regex=True).astype(float)
-    cleaned_df['service_fee'] = cleaned_df['service_fee'].replace({'\$': '', ',': ''}, regex=True).astype(float)
+    cleaned_df.price = cleaned_df.price.replace({r'\$': '', ',': ''}, regex=True).astype(float)
+    cleaned_df.service_fee = cleaned_df.service_fee.replace({r'\$': '', ',': ''}, regex=True).astype(float)
     
     #transform instant_bookable in bool
     cleaned_df['instant_bookable'] = cleaned_df['instant_bookable'].astype(bool)
@@ -298,7 +296,6 @@ elif current_tab == "🔗 Correlation":
                 - the Bronx, Queens, and Staten Island neighborhoods have the fewest Airbnbs.
             ''')
         
-
 ############
 #EDA
 ############
@@ -637,6 +634,191 @@ elif current_tab == "📊 Exploratory Data Analysis":
         plt.xticks(rotation=0)  
         st.pyplot(plt.gcf())
         st.write('This stacked plot shows that the number of reviews with each score appears to be similar between verified and unverified hosts. This observation might suggest that the identity verification status is not a determining factor in guests overall evaluations. Other factors, such as cleanliness, comfort, location, and hospitality, may have a more significant influence on guest evaluations. Alternatively, it could indicate a lack of awareness among guests regarding the host s identity confirmation process.')
+
+#########
+#Modeling
+#########
+elif current_tab == "🤖 Modeling with ML algorithms":
+    st.title("Modeling with Machine Learning algorithms")
+
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LinearRegression
+    from sklearn.metrics import mean_squared_error, r2_score
+    from sklearn.preprocessing import LabelEncoder
+    
+    cleaned_df = clean_data(airbnb_df)  
+    cleaned_df['instant_bookable'] = cleaned_df['instant_bookable'].map({True: 1, False: 0})
+    label_encoder = LabelEncoder()
+    cleaned_df['cancellation_policy'] = label_encoder.fit_transform(cleaned_df['cancellation_policy'])
+    cleaned_df['neighbourhood_group'] = label_encoder.fit_transform(cleaned_df['neighbourhood_group'])
+    cleaned_df['host_identity_verified'] = label_encoder.fit_transform(cleaned_df['host_identity_verified'])
+
+
+    st.write('On this page are two models used to explain the data, select the one you prefer.')
+    tab1, tab2 = st.tabs(["Linear Regression", "Random Foreset Classifier"])
+
+    with tab1:
+        st.write('The Linear Regression model was used to examine daily Airbnb prices in New York City and look at whether, based on the data provided, the model would predict the price actually offered by hosts. ')
+        cleaned2_df = cleaned_df.copy()
+        label_encoder = LabelEncoder()
+        cleaned2_df['room_type'] = label_encoder.fit_transform(cleaned_df['room_type'])
+        cleaned2_df.drop(columns=['id', 'name', 'neighbourhood','host_name','host_id', 'lat', 'long', 'country', 'country_code'], inplace=True)
+
+        # split X and Y
+        Y = cleaned2_df.price.values
+        X = cleaned2_df.drop(['price'], axis = 1)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.2, random_state = 101)
+        from sklearn.preprocessing import RobustScaler
+        ro_scaler = RobustScaler()
+        X_train = ro_scaler.fit_transform(X_train)
+        X_test = ro_scaler.fit_transform(X_test)
+        # define the Regression model
+        model = LinearRegression()
+        # build the training model
+        model.fit(X_train, Y_train)
+        Y_pred = model.predict(X_test)
+
+        r2 = r2_score(Y_test, Y_pred)
+        mse = mean_squared_error(Y_test, Y_pred)
+        # Calculates the variance of the price variable
+        target_variance = np.var(Y_test)
+        mse_to_variance_ratio = mse / target_variance
+    
+        table_data = {
+            "Metric": ["Mean Squared Error (MSE)", "Coefficient of Determination (R^2)", "MSE to Variance Ratio"],
+            "Value": [mse, r2, mse_to_variance_ratio]
+        }
+        st.table(table_data)
+        
+
+        st.write('The mean square error is very small compared to the natural variation in the data of the target variable. Such a low value for this ratio is a positive sign and suggests that the model is making good predictions with respect to the natural variability in the data in the `price` column.')
+
+        df = pd.DataFrame({"Y_test": Y_test, "Y_pred": Y_pred})
+        col1 = st.columns(1)[0]
+        with col1:
+            st.write(df.head(10))
+        
+        plt.figure(figsize = (25,15))
+        plt.plot(df['Y_test'][:50], color = 'aqua', linewidth = 6)
+        plt.plot(df['Y_pred'][:50], color = 'red', linewidth = 3)
+        plt.legend(['Actual', 'Predicted'])
+        plt.xlabel('Index', fontsize=15)
+        plt.ylabel('Price', fontsize=15)
+        plt.grid(True)
+        st.pyplot(plt.gcf())
+
+        st.write('It is possible to see that the predictable values are really really close to the actual ones, so the prediction might looks accurate.')
+        
+        ##########
+        #Function
+        ##########   
+        #Define the plot_scatter function 
+        def plot_scatter(cleaned_df):
+            plt.figure(figsize=(6, 3))
+            sns.set_palette("husl")
+            sns.scatterplot(data=cleaned_df, x='service_fee', y='price', color='purple')
+            plt.xlabel('Service Fee')
+            plt.ylabel('Price')
+            plt.title('Relationship between Service Fee and Price')
+            st.pyplot(plt.gcf())  # 
+
+        # Initializes or updates the state when the button is pressed
+        if 'show_scatter' not in st.session_state:
+            st.session_state.show_scatter = False
+
+        if st.button('Click to see the Scatterplot'):
+            st.session_state.show_scatter = not st.session_state.show_scatter
+
+        # Shows or hides the graph based on the state of the session
+        if st.session_state.show_scatter:
+            plt.figure(figsize=(8, 6))
+            sns.scatterplot(x=Y_test, y=Y_pred, color='purple')
+            plt.xlabel('Y_test')
+            plt.ylabel('Y_pred')
+            plt.title('Scatterplot of Y_test vs Y_pred')
+            st.pyplot(plt.gcf()) 
+            st.write('Since the `price` variable is correlated only with the `service_fee` variable the linear regression model produces this result in which the plots in the scatterplot follow an ascending diagonal reatta line.')
+
+
+    with tab2:
+        st.write('The Random Rorecast Classifier method was used to examine the variable `room_type` and see if, using the data provided, the model predicts the room types to be offered on the Airbnb online booking platform and confounds them with those actually offered by hosts.')
+
+        #import libraries
+        from sklearn.ensemble import RandomForestClassifier
+        from sklearn.model_selection import train_test_split
+        from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+        cleaned3_df = cleaned_df.copy()
+        cleaned3_df.drop(columns=['id', 'name', 'neighbourhood','host_name','host_id', 'lat', 'long', 'country', 'country_code'], inplace=True)
+
+        # Split dataset to X and Y variables
+        X1 = cleaned3_df.drop(columns=['room_type'], axis=1) 
+        Y1 = cleaned3_df['room_type'] 
+        # Divide the data into training and test sets
+        X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size=0.2, random_state=101)
+        # Define the RandomForestClassifier model
+        model1 = RandomForestClassifier(n_estimators=100, random_state=42)
+        #  build the training model
+        model1.fit(X1_train, Y1_train)
+        # apply the trained model to make prediction on test set
+        Y1_pred = model1.predict(X1_test)
+        # Evaluates the performance of the model
+        
+
+        accuracy = accuracy_score(Y1_test, Y1_pred)
+        conf_matrix = confusion_matrix(Y1_test, Y1_pred)
+        class_report = classification_report(Y1_test, Y1_pred, zero_division=1, output_dict=True)
+
+        # Creazione della tabella
+        metrics_data = {
+            'Metric': ['Accuracy', 'Confusion Matrix', 'Classification Report'],
+            'Value': [accuracy, conf_matrix, class_report]
+        }
+        metrics_df = pd.DataFrame(metrics_data)
+        # Visualizzazione della tabella su Streamlit
+        st.write(metrics_df, wide_mode = True)
+
+        st.write('To visualize the accuracy of this model in a bar plot for each room type:')
+        # Calculates classification accuracy for each class.
+        class_accuracy = {}
+        for i, class_name in enumerate(model1.classes_):
+            correct_predictions = np.sum((Y1_test == class_name) & (Y1_pred == class_name))
+            total_predictions = np.sum(Y1_test == class_name)
+            class_accuracy[class_name] = correct_predictions / total_predictions
+
+        # Bar plot
+        plt.figure(figsize=(10, 6))
+        plt.bar(class_accuracy.keys(), class_accuracy.values(), color='#2E8B57')
+        plt.xlabel('Room Type')
+        plt.ylabel('Accuracy')
+        plt.title('Accuracy by Room Type')
+        plt.xticks(rotation=0)
+        st.pyplot(plt.gcf())
+
+        st.markdown("<h1 style='text-align: center;'>Test VS Prediction</h1>", unsafe_allow_html=True)
+
+        df1 = pd.DataFrame({"Y_test": Y1_test, "Y_pred": Y1_pred})
+        custom_palette_test = ['mediumseagreen', 'orange', 'mediumpurple', 'hotpink']
+        custom_palette_pred = ['mediumseagreen', 'mediumpurple', 'hotpink']
+        
+        fig1, ax1 = plt.subplots()
+        df1.groupby('Y_test').size().plot(kind='barh', color=custom_palette_test)
+        plt.title('Room type')
+        plt.xlabel('NUmber of Airbnb')
+        fig2, ax2 = plt.subplots()
+        df1.groupby('Y_pred').size().plot(kind='barh', color=custom_palette_pred)
+        plt.title('Room type prediction')
+        plt.xlabel('NUmber of Airbnb')
+        col1, col2 = st.columns(2)
+        col1.pyplot(fig1)
+        col2.pyplot(fig2)
+        st.write('These horizontal bar graphs contrast the number of Airbnb for each room type that hosts made available to customers and the room types they actually should have made available according to the model used.')
+        
+        
+
+
+
+
        
 
 
