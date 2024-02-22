@@ -246,10 +246,10 @@ elif current_tab == "🔗 Correlation":
 
             st.markdown('''
                 From the information provided by the heatmap, you can infer that:
-                - for "entire apt" reservations, more cancellations are available with flexible and moderate policies than strict policies
-                - for "hotel room" type reservations, cancellations are relatively low and similar among different cancellation policies
-                - for private room type reservations, cancellations are similar between flexible, moderate and strict policies
-                - for shared room reservations, cancellations are similar among the different cancellation policies, with a slight difference between flexible and moderate versus strict policies.
+                - for **entire apartment** reservations, more cancellations are available with flexible and moderate policies than strict policies
+                - for **hotel room** type reservations, cancellations are relatively low and similar among different cancellation policies
+                - for **private room** type reservations, cancellations are similar between flexible, moderate and strict policies
+                - for **shared room** reservations, cancellations are similar among the different cancellation policies, with a slight difference between flexible and moderate versus strict policies.
             ''')
 
 
@@ -349,6 +349,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
     plt.xticks(rotation=45)  
     plt.legend(title='Neighbourhood')
     st.pyplot(plt.gcf())
+    st.write('Looking at this stacked bar chart, it appears that Brooklyn has fewer neighborhoods, but each of them has a high number of Airbnbs, while Manhattan has more neighborhoods but fewer Airbnbs.')
 
     ######################################################################################################################################################
     
@@ -406,10 +407,10 @@ elif current_tab == "📊 Exploratory Data Analysis":
     plt.legend()
     plt.grid(True, axis = 'y')
     st.pyplot(plt.gcf())
-    st.write('The largest number of airbnbs were built in 2012.')
+    st.write('The largest number of Airbnbs were built in 2012.')
 
     #############################################################################################################################################################
-    st.write('The minimum and maximum daily prices of Airbnb built from 2002 to 2022 were also investigated to check whether the higher price had a close relationship with the recent construction of the apartment')
+    st.write('The minimum and maximum daily prices of Airbnb built from 2002 to 2022 were investigated to check whether the higher price had a close relationship with the recent construction of the apartment')
 
     max_price_per_year= cleaned_df.groupby('construction_year')['price'].max()
     min_price_per_year= cleaned_df.groupby('construction_year')['price'].min()
@@ -444,7 +445,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
     plt.legend()
     
     st.pyplot(plt.gcf())
-    st.write('It is noted that the daily price is not strictly related to the year of construction; rather, for each year it goes back to an apartment with a minimum price of $50 and a maximum of $1199 or $1200.')
+    st.write("It is noted that the daily price is not strictly related to the year of construction; rather, for each year it goes back to an apartment with a minimum price of 50 dollars and a maximum of 1199 or 1200 dollars.")
 
     #############################################################################################################################################################
     st.write('The map shows the most expensive Airbnbs, highlighted in red, and the least expensive, in green, in New York City. Each of these, when selected, indicates the neighborhood to which it belongs.')
@@ -538,7 +539,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
         plt.tight_layout()
         st.pyplot(plt.gcf())
 
-        st.write('From this sublpot with pie charts related to neighborhood groups, it can be seen that most hosts offer entire apartments or private rooms')
+        st.write('From this sublpot with pie charts related to neighborhood groups, it can be seen that most hosts offer entire apartments or private rooms.')
 
 
     #########################################################################################################################################################################################################################
@@ -576,7 +577,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
         plt.title('Cancellation policy strictness by percentage', fontsize=7)
         #plt.legend()
         st.pyplot(plt.gcf())
-        st.write('There is a small difference between the cancellation policies guaranteed by hosts, the one most commonly used is the moderate one.')
+        st.write('There is a small difference between the cancellation policies guaranteed by hosts, the one most commonly used is the **moderate** one.')
     
     #############################################################################################################################################################
     st.write('Even if hosts do not confirm customers reservations, the guests can often proceed with the booking anyway. Instant bookable is not strictly tied to a room type  as can be seen from the following plot.')
@@ -591,7 +592,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
     plt.xticks(rotation=0)
     plt.legend(title='Room Type')
     st.pyplot(plt.gcf())
-    st.write('the fact whether Airbnb is bookable instantly or later does not depend on the type of room because this graph  does not show a substantial difference.')
+    st.write('The fact whether Airbnb is bookable instantly or later does not depend on the type of room because this graph  does not show a substantial difference.')
 
     ##################################################################################################################################################################################
     st.write('The next boxplot analyzes the possible changes in daily Airbnb prices in New York City according to the type of room they refer to. ')   
@@ -602,7 +603,7 @@ elif current_tab == "📊 Exploratory Data Analysis":
     plt.ylabel('Price')
     plt.title('Price distribution by Room Type')
     st.pyplot(plt.gcf())
-    st.write('It is observed that the median is similar for all solutions so the average prices are similar. Only for hotel room it is possible to observe that the prices are slightly higher.')
+    st.write('In this boxplot it is observed that the median is similar for all solutions so the average prices are similar. Only for hotel room it is possible to observe that the prices are slightly higher.')
     ##############################################################################################################################################################################
     st.write('Regarding the rate obtained in the reviews:')
     
@@ -696,7 +697,7 @@ elif current_tab == "🤖 Modeling with ML algorithms":
         df = pd.DataFrame({"Y_test": Y_test, "Y_pred": Y_pred})
         col1 = st.columns(1)[0]
         with col1:
-            st.write(df.head(10))
+            st.write(df.head(25))
         
         plt.figure(figsize = (25,15))
         plt.plot(df['Y_test'][:50], color = 'aqua', linewidth = 6)
@@ -762,9 +763,9 @@ elif current_tab == "🤖 Modeling with ML algorithms":
         model1.fit(X1_train, Y1_train)
         # apply the trained model to make prediction on test set
         Y1_pred = model1.predict(X1_test)
-        # Evaluates the performance of the model
+       
         
-
+         # Evaluates the performance of the model
         accuracy = accuracy_score(Y1_test, Y1_pred)
         conf_matrix = confusion_matrix(Y1_test, Y1_pred)
         class_report = classification_report(Y1_test, Y1_pred, zero_division=1, output_dict=True)
@@ -813,7 +814,7 @@ elif current_tab == "🤖 Modeling with ML algorithms":
         col1.pyplot(fig1)
         col2.pyplot(fig2)
         st.write('These horizontal bar graphs contrast the number of Airbnb for each room type that hosts made available to customers and the room types they actually should have made available according to the model used.')
-        
+        st.write('It is possible to see that the hotel rooms in the forecast are not expected, the number of shared room has decreased significantly while the number of entire home has increased.')
         
 
 
